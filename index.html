@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Search</title>
+    <style>
+        body{
+            background-color: #743800;
+        }
+        .topbar{
+            background-color: #DFAC49;
+            height:130px;
+            width:1230px;
+            display:grid;
+            place-items:center;
+            margin-bottom: 20px;
+        }
+        .topic{
+            font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+        }
+        .custom-file-label,.file{
+            height:30px;
+            width:150px;
+            color:azure;
+            margin-left:30px;
+        }
+        input.file, input.upload {
+        position: relative;
+        font-size: 2px;
+        display: inline-block;
+        cursor: pointer;
+        opacity: 0; 
+        z-index: 1; 
+        height:2px;
+        width:2px;
+        margin:0;
+        padding:0;
+        }
+
+        .custom-file-label {
+        display: inline-block;
+        background-color: #ffffff;
+        color: rgb(92, 38, 20);
+        padding: 10px 20px;
+        font-size: 26px;
+        font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease, color 0.3s ease;
+        margin: 2px solid black;
+        }
+
+        .custom-file-label:hover {
+        background-color: #aa8f59;
+        color:white;
+        margin:2px solid white;
+        }
+        .chooseimg{
+            height:300px;
+            width:300px;
+        }
+        .mainbox{
+            display:grid;
+            grid-template-columns: 1fr 1fr;
+            height:300px;
+            width:800px;
+            margin-top:50px;
+        }
+        .subbox{
+            display:grid;
+            grid-template-rows: 1fr 1fr;
+            align-items: center;
+        }
+        .textinsert{
+            font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+            font-size:20px;
+            color:white;
+            margin-left:30px;
+        }
+        .drop-area {
+            border: 2px dashed #ffffff;
+            border-radius: 10px;
+            padding: 30px;
+            width: 300px;
+            text-align: center;
+            color: white;
+            font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+            margin-left: 100px;
+            display:grid;
+            grid-template-rows:1fr 7fr;
+            width:290px;
+            height:300px;
+            place-items:center;
+            margin-bottom:30px;
+        }
+        .drop-area.dragover {
+            background-color: #aa8f59;
+            color: #ffffff;
+        }
+        .dndtext{
+            margin-bottom:0;
+            font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+            font-size:15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+    <img class="pushplogo" src="{{ url_for('static', filename='images/pushp_logo.png') }}" alt="Description of image">
+    </div>
+    <form action="/" method="POST" enctype="multipart/form-data">
+        <div class="mainbox">
+            <!-- <div>
+                <img class="chooseimg" src="{{ url_for('static', filename='images/choose_image.jpg') }}" alt="Description of image">
+            </div> -->
+            <div id="drop-area" class="drop-area">
+                <div class="dndtext">
+                    Drag and drop the image here
+                </div>
+                <div>
+                <img class="chooseimg" src="{{ url_for('static', filename='images/choose_image.jpg') }}" alt="Description of image">
+                </div>
+            </div>
+            <div class="subbox">
+                <div>
+                    <p class="textinsert">Drag and drop / Insert the image to find similar products</p>
+                    <label class="custom-file-label" for="file">Choose File</label>
+                    <input class="file" type="file" id="file" name="file">
+                </div>
+                <div>
+                    <label class="custom-file-label" for="upload">Upload</label>  
+                    <input class="upload" type="submit" id="upload" value="Upload">
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <script>
+        const dropArea = document.getElementById('drop-area');
+        const fileInput = document.getElementById('file');
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        dropArea.addEventListener('dragover', (e) => {
+            dropArea.classList.add('dragover');
+        });
+
+        dropArea.addEventListener('dragleave', (e) => {
+            dropArea.classList.remove('dragover');
+        });
+        dropArea.addEventListener('drop', (e) => {
+            dropArea.classList.remove('dragover');
+        });
+
+    dropArea.addEventListener('drop', (e) => {
+        dropArea.classList.remove('dragover');
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        handleFiles(files);
+    });
+
+    fileInput.addEventListener('change', (e) => {
+        const files = fileInput.files;
+        handleFiles(files);
+    });
+
+    function handleFiles(files) {
+        fileInput.files = files;
+        const file = files[0];
+        if (file && file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onloadend = () => {
+                const img = document.createElement('img');
+                img.src = reader.result;
+                img.style.maxWidth = '300px';
+                img.style.maxHeight = '300px';
+                dropArea.innerHTML = '';
+                dropArea.appendChild(img);
+            };
+        }
+    }
+    </script>
+</body>
+</html>
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Search</title>
+    <style>
+        body{
+            background-color: #743800;
+        }
+        .topbar{
+            background-color: #DFAC49;
+            height:130px;
+            width:1230px;
+            display:grid;
+            place-items:center;
+            margin-bottom: 20px;
+        }
+        .topic{
+            font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+        }
+        .custom-file-label,.file{
+            height:30px;
+            width:150px;
+            color:azure;
+            margin-left:30px;
+        }
+        input.file, input.upload {
+        position: relative;
+        font-size: 2px;
+        display: inline-block;
+        cursor: pointer;
+        opacity: 0; 
+        z-index: 1; 
+        height:2px;
+        width:2px;
+        margin:0;
+        padding:0;
+        }
+
+        .custom-file-label {
+        display: inline-block;
+        background-color: #ffffff;
+        color: rgb(92, 38, 20);
+        padding: 10px 20px;
+        font-size: 26px;
+        font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease, color 0.3s ease;
+        margin: 2px solid black;
+        }
+
+        .custom-file-label:hover {
+        background-color: #aa8f59;
+        color:white;
+        margin:2px solid white;
+        }
+        .chooseimg{
+            height:300px;
+            width:300px;
+            margin-left:100px;
+        }
+        .mainbox{
+            display:grid;
+            grid-template-columns: 1fr 1fr;
+            height:300px;
+            width:800px;
+            margin-top:50px;
+        }
+        .subbox{
+            display:grid;
+            grid-template-rows: 1fr 1fr;
+            align-items: center;
+        }
+        .textinsert{
+            font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+            font-size:20px;
+            color:white;
+            margin-left:30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+    <img class="pushplogo" src="{{ url_for('static', filename='images/pushp_logo.png') }}" alt="Description of image">
+    </div>
+    <form action="/" method="POST" enctype="multipart/form-data">
+        <div class="mainbox">
+            <div>
+                <img class="chooseimg" src="{{ url_for('static', filename='images/choose_image.jpg') }}" alt="Description of image">
+            </div>
+            <div class="subbox">
+                <div>
+                    <p class="textinsert">Insert the image to find similar products</p>
+                    <label class="custom-file-label" for="file">Choose File</label>
+                    <input class="file" type="file" id="file" name="file">   
+                </div>
+                <div>
+                    <label class="custom-file-label" for="upload">Upload</label>  
+                    <input class="upload" type="submit" id="upload" value="Upload">
+                </div>
+            </div>
+        </div>
+    </form>
+</body>
+</html> -->
